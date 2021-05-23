@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="io.renren.modules.hotel.dao.HotelSellerDao">
+
+	<!-- 可根据自己的需求，是否要使用 -->
+	<resultMap
+		type="io.renren.modules.hotel.entity.HotelSellerEntity"
+		id="hotelSellerMap">
+		<result property="id" column="id" />
+		<result property="userId" column="user_id" />
+		<result property="brandId" column="brand_id" />
+		<result property="owner" column="owner" />
+		<result property="name" column="name" />
+		<result property="star" column="star" />
+		<result property="address" column="address" />
+		<result property="linkName" column="link_name" />
+		<result property="linkTel" column="link_tel" />
+		<result property="tel" column="tel" />
+		<result property="handle" column="handle" />
+		<result property="openTime" column="open_time" />
+		<result property="wake" column="wake" />
+		<result property="wifi" column="wifi" />
+		<result property="park" column="park" />
+		<result property="breakfast" column="breakfast" />
+		<result property="unionpay" column="unionPay" />
+		<result property="gym" column="gym" />
+		<result property="boardroom" column="boardroom" />
+		<result property="water" column="water" />
+		<result property="policy" column="policy" />
+		<result property="introduction" column="introduction" />
+		<result property="img" column="img" />
+		<result property="rule" column="rule" />
+		<result property="prompt" column="prompt" />
+		<result property="bqLogo" column="bq_logo" />
+		<result property="support" column="support" />
+		<result property="ewmLogo" column="ewm_logo" />
+		<result property="time" column="time" />
+		<result property="coordinates" column="coordinates" />
+		<result property="scort" column="scort" />
+		<result property="sfzImg1" column="sfz_img1" />
+		<result property="sfzImg2" column="sfz_img2" />
+		<result property="yyImg" column="yy_img" />
+		<result property="other" column="other" />
+		<result property="zdMoney" column="zd_money" />
+		<result property="state" column="state" />
+		<result property="sqTime" column="sq_time" />
+		<result property="isUse" column="is_use" />
+		<result property="llNum" column="ll_num" />
+		<result property="bdId" column="bd_id" />
+		<result property="yeOpen" column="ye_open" />
+		<result property="wxOpen" column="wx_open" />
+		<result property="ddOpen" column="dd_open" />
+		<result property="lnt" column="lnt" />
+		<result property="lat" column="lat" />
+		<result property="enabled" column="enabled" />
+		<result property="reserveRemind" column="reserve_remind" />
+		<result property="metro" column="metro" />
+		<result property="repast" column="repast" />
+		<result property="balance" column="balance" />
+		<result property="freezeBalance" column="freeze_balance" />
+		<result property="tags" column="tags" />
+	</resultMap>
+
+	<select id="hotelPage"
+		resultType="io.renren.modules.hotel.vo.HotelItemVo">
+		select temp.* From (
+		SELECT t.id,t.tags,t.NAME,t.ewm_logo AS
+		logo,t1.price,t.coordinates AS lonLat,(
+		SELECT count(*) FROM
+		t_hotel_assess a WHERE a.seller_id=t.id) AS
+		comment_count,
+		bt.name as
+		levelType,
+		(6371*acos(cos(radians(#{params.latitude}))*cos(radians(t.lat))*cos(radians(t.lnt)-radians(#{params.longitude}))+sin(radians(#{params.latitude}))*sin(radians(lat))))
+		AS distance FROM t_hotel_seller t INNER JOIN (
+		SELECT
+		t.seller_id,MIN(t.price) AS price FROM t_hotel_room_money t GROUP BY
+		t.seller_id) t1 ON t.id=t1.seller_id
+		left join t_hotel_brand b on
+		t.brand_id = b.id
+		left join t_hotel_brand_type bt on b.type_id = bt.id
+		<where>
+			and t.enabled = 1
+			<if test='params.levelSort !=null'>
+				and t.star in
+				<foreach item="item" collection="params.levelSort"
+					separator="," open="(" close=")" index=""> #{item, jdbcType=INTEGER}
+				</foreach>
+			</if>
+			<if test='params.priceSort !=null'>
+				and t1.price BETWEEN #{params.priceSort[0]} and
+				#{params.priceSort[1]}
+			</if>
+			<if test='params.hotelService == 1'>
+				and t.gym = 1
+			</if>
+			<if test='params.hotelService == 2'>
+				and t.boardroom = 1
+			</if>
+			<if test='params.k !=null'>
+				and (t.`name` like CONCAT('%',#{params.k},'%') or
+				t.address like CONCAT('%',#{params.k},'%'))
+			</if>
+
+		</where>
+		HAVING distance > 0 
+		<if test="params.dis == 0">
+			and distance &lt; 100
+		</if>
+		<if test="params.dis > 0">
+			and distance &lt; #{params.dis}
+		</if>
+		
+		<if test='params.sort == 0'>
+			ORDER BY distance asc
+		</if>
+		<if test='params.sort > 0'>
+			<if test='params.sort == 1'>
+				ORDER BY distance asc
+			</if>
+			<if test='params.sort == 2'>
+				ORDER BY price asc
+			</if>
+			<if test='params.sort == 3'>
+				ORDER BY comment_count asc
+			</if>
+		</if>
+
+		) temp
+	</select>
+
+	<select id="search"
+		resultType="io.renren.modules.hotel.vo.HotelSearchVo">
+		SELECT
+		t.id,
+		t.`name`,
+		t.address
+		from t_hotel_seller t where
+		t.`name` like CONCAT('%',#{kw},'%')
+	</select>
+</mapper>

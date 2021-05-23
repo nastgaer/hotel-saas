@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper
+	namespace="io.renren.modules.hotel.dao.HotelMemberLevelDetailDao">
+
+	<!-- 可根据自己的需求，是否要使用 -->
+	<resultMap
+		type="io.renren.modules.hotel.entity.HotelMemberLevelDetailEntity"
+		id="hotelMemberLevelDetailMap">
+		<result property="id" column="id" />
+		<result property="levelId" column="level_id" />
+		<result property="memberId" column="member_id" />
+		<result property="certificate" column="certificate" />
+		<result property="certificateNo" column="certificate_no" />
+		<result property="name" column="name" />
+		<result property="mobile" column="mobile" />
+		<result property="gender" column="gender" />
+		<result property="cardNo" column="card_no" />
+		<result property="address" column="address" />
+		<result property="creator" column="creator" />
+		<result property="createDate" column="create_date" />
+		<result property="updateDate" column="update_date" />
+		<result property="sellerId" column="seller_id" />
+		<result property="status" column="status" />
+		<result property="score" column="score" />
+		<result property="balance" column="balance" />
+		<result property="qrCode" column="qr_code" />
+	</resultMap>
+
+	<update id="updateBanlance">
+		UPDATE t_hotel_member_level_detail t set t.balance =
+		t.balance - #{totalCost} where t.id =#{params.id} and t.balance =
+		#{params.balance}
+	</update>
+
+	<update id="updateintegral">
+		UPDATE t_hotel_member_level_detail t set t.score =
+		t.score - #{totalCost}
+		where t.id =#{params.id} and t.score =
+		#{params.score}
+	</update>
+	<update id="addIntegral">
+		UPDATE t_hotel_member_level_detail t set t.score =
+		t.score + #{totalCost}
+		where t.id =#{params.id} and t.score =
+		#{params.score}
+	</update>
+	<update id="addBalance">
+		UPDATE t_hotel_member_level_detail t set t.balance = t.balance + #{totalCost}
+		where t.id =#{params.id} and t.balance = #{params.balance}
+	</update>
+
+</mapper>

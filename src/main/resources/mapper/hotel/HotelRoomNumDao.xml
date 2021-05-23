@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="io.renren.modules.hotel.dao.HotelRoomNumDao">
+
+	<!-- 可根据自己的需求，是否要使用 -->
+	<resultMap
+		type="io.renren.modules.hotel.entity.HotelRoomNumEntity"
+		id="hotelRoomNumMap">
+		<result property="id" column="id" />
+		<result property="rid" column="rid" />
+		<result property="nums" column="nums" />
+		<result property="dateday" column="dateday" />
+		<result property="moneyId" column="money_id" />
+		<result property="status" column="status" />
+	</resultMap>
+	<update id="updateRoomNum">
+		update t_hotel_room_num t set t.nums =
+		t.nums+#{roomNum} where t.id = #{params.id} and t.nums =
+		#{params.nums}
+	</update>
+	<select id="hasRoomNumWithDay" resultType="int">
+		SELECT count(*) FROM t_hotel_room_num t where t.rid =#{roomId} and t.dateday=#{time}  and (t.nums &lt; 1 or t.`status` =0)
+	</select>
+	
+	<select id="hasRoomNumWithBetweenDay" resultType="int">
+		SELECT count(*) FROM t_hotel_room_num t where t.rid =#{roomId} and t.dateday BETWEEN #{startTime} and #{endTime} and (t.nums &lt; 1 or t.`status` =0)
+	</select>
+	<select id="hasRoomMoneyNumWithBetweenDay" resultType="int">
+		SELECT count(*) FROM t_hotel_room_num t where t.money_id =#{moneyId} and t.dateday BETWEEN #{startTime} and #{endTime} and (t.nums &lt; 1 or t.`status` =0)
+	</select>
+</mapper>
